@@ -1,2 +1,2 @@
 print("Python好簡單唷！")
-# 123
+# 想吃麥當勞 或是 SUKIYA

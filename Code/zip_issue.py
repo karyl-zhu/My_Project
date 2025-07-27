@@ -1,61 +1,90 @@
-# 操作、建立資料夾 
 import os
-# 網頁爬蟲
 import requests
 from bs4 import BeautifulSoup
-# 正規表達式
 import re
-# 解壓縮檔案
+import datetime
 import tarfile
+import shutil
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'}
+headers = {'User-Agent': 'Mozilla/5.0'}
 base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
 
-# os.getcwd() -> 取得當前工作目錄
-# os.path.join -> 合併路徑，使用這與法能讓不同系統的電腦不會因為路徑顯示方式不同而出錯
-# os.makedirs -> 建立資料夾
-save_folder = os.path.join(os.getcwd(), 'Web_Crawler', '2024', 'zip file')
-os.makedirs(save_folder, exist_ok=True)
+# 建立最終資料夾
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(script_dir)
+unzip_folder = os.path.join(parent_dir, 'Web_Crawler', '2024')
+os.makedirs(unzip_folder, exist_ok=True)
 
-# 確保資料夾存在
-os.makedirs(save_folder, exist_ok=True)
+# 正則比對檔名格式，抓月份與日期
+pattern = re.compile(r'^M03A_2024(\d{2})(\d{2})\.tar\.gz$')
 
-# 發送請求並解析 HTML
+# 下載並解析網頁
 res = requests.get(base_url, headers=headers)
 soup = BeautifulSoup(res.text, 'html.parser')
-links = soup.find_all('td', attrs={'class': 'indexcolname'})
 
-# 設定變數，此變數為 2024 年的檔案
-data_2024 = re.compile(r'^M03A_2024\d{4}\.tar\.gz$')
+links = soup.find_all('a')
+seen_files = set()  # 👉 避免重複處理
 
-count = 0
+count = 0  # ✅ 成功新增解壓的檔案數
+skipped_count = 0  # ✅ 被跳過的檔案數
+
 for link in links:
     try:
-        # 抓這段 links 裡 <a> 標籤的 href 屬性
-        href = link.a['href']
+        href = link['href']
 
-        if not data_2024.match(href):
-            continue  # 不符合2024年的資料就跳過
+        if href in seen_files:
+            continue
+        seen_files.add(href)
 
-        file_url = base_url + href
-        # 用os.path.join 避免不同的作業系統導致路徑符號錯誤
-        save_path = os.path.join(save_folder, href)
+        match = pattern.match(href)
+        if not match:
+            continue
 
-        # 把剛剛 file_url 拿到的網址透過get請求把這網頁的資料抓下來丟在 file_res 變數裡
-        file_res = requests.get(file_url)
-        # 打開剛剛設定好的電腦路徑;wb->二進位寫入模式
-        # with 是 Python 的語法糖，用來自動開關檔案，確保寫完檔案後會正常關閉。
-        with open(save_path, 'wb') as f:
-            # 把從網路抓回來的檔案內容寫進剛剛打開的本地檔案。
-            f.write(file_res.content)
+        month, day = match.groups()
+        date_str = f'2024-{month}-{day}'
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+
+        # 只抓週末（六日）
+        if date_obj.weekday() < 5:
+            continue
+
+        filename = href
+        zip_path = os.path.join(unzip_folder, filename)
+        folder_name = filename.replace('.tar.gz', '')
+        final_folder_name = folder_name[-8:]  # 20240106
+        final_extract_path = os.path.join(unzip_folder, final_folder_name)
+
+        if os.path.exists(final_extract_path):
+            skipped_count += 1  # ✅ 統計跳過次數
+            print(f"✅ 已存在：{final_folder_name}，跳過")
+            continue
+
+        print(f"⬇️ 下載中：{filename}")
+        res_file = requests.get(base_url + filename, stream=True)
+        with open(zip_path, 'wb') as f:
+            for chunk in res_file.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        print(f"📦 解壓縮：{filename}")
+        with tarfile.open(zip_path, 'r:gz') as tar:
+            tar.extractall(path=os.path.join(unzip_folder, folder_name))
+
+        inner_path = os.path.join(unzip_folder, folder_name, 'M03A', final_folder_name)
+        if os.path.exists(inner_path):
+            shutil.move(inner_path, final_extract_path)
+        else:
+            print(f"⚠️ 找不到資料夾：{inner_path}")
+            continue
+
+        shutil.rmtree(os.path.join(unzip_folder, folder_name))
+        os.remove(zip_path)
 
         count += 1
-        print(f"[{count}] 已下載：{href}")
+        print(f"✅ 已完成：{final_folder_name}")
 
     except Exception as e:
-        print(f"⚠️ 錯誤：下載 {href} 時發生錯誤：{e}")
+        print(f"⚠️ 發生錯誤：{href} - {e}")
 
-
-# # r:gz 是針對 tar.gz 
-# with tarfile.open(href, "r:gz") as tar:
-#     tar.extractall()  # 預設會解壓在目前資料夾
+print(f"\n🎉 全部完成：")
+print(f"✅ 新增並解壓：{count} 筆")
+print(f"⏩ 跳過（已存在）：{skipped_count} 筆")

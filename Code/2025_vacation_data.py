@@ -7,32 +7,26 @@ import datetime
 headers = {'User-Agent': 'Mozilla/5.0'}
 base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
 
-# 取得當前執行此 Python 檔案的資料夾
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# 取得上層資料夾
-parent_dir = os.path.dirname(script_dir)
-# 在上層建資料夾                   
-save_folder = os.path.join(parent_dir, 'Web_Crawler', '2024', 'zip_file')
-
+save_folder = os.path.join(os.getcwd(), 'Web_Crawler', '2025', 'zip_file')
 os.makedirs(save_folder, exist_ok=True)
 
 res = requests.get(base_url, headers=headers)
 soup = BeautifulSoup(res.text, 'html.parser')
 links = soup.find_all('td', attrs={'class': 'indexcolname'})
 
-data_2024 = re.compile(r'^M03A_2024(\d{2})(\d{2})\.tar\.gz$')
+data_2025 = re.compile(r'^M03A_2025(\d{2})(\d{2})\.tar\.gz$')
 
 count = 0
 for link in links:
     try:
         href = link.a['href']
-        match = data_2024.match(href)
+        match = data_2025.match(href)
 
         if not match:
             continue
 
         month, day = match.groups()
-        date_str = f'2024-{month}-{day}'
+        date_str = f'2025-{month}-{day}'
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
         # 加入只抓週末
@@ -41,6 +35,10 @@ for link in links:
 
         file_url = base_url + href
         save_path = os.path.join(save_folder, href)
+
+        # 只抓7月之前(含6月)的檔案
+        if date_obj.month > 6:
+            continue
 
         # 如果下載地點已經存在這檔案，就會跳過
         if os.path.exists(save_path):

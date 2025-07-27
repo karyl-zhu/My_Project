@@ -1,5 +1,3 @@
-# 2024年高工局所有車流資料下載
-
 # 操作、建立資料夾 
 import os
 # 網頁爬蟲
@@ -16,7 +14,7 @@ base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
 # os.getcwd() -> 取得當前工作目錄
 # os.path.join -> 合併路徑，使用這與法能讓不同系統的電腦不會因為路徑顯示方式不同而出錯
 # os.makedirs -> 建立資料夾
-save_folder = os.path.join(os.getcwd(), 'Web_Crawler', '2024', 'zip_file')
+save_folder = os.path.join(os.getcwd(), 'Web_Crawler', '2024', 'zip file')
 os.makedirs(save_folder, exist_ok=True)
 
 # 確保資料夾存在
@@ -56,3 +54,8 @@ for link in links:
 
     except Exception as e:
         print(f"⚠️ 錯誤：下載 {href} 時發生錯誤：{e}")
+
+
+# # r:gz 是針對 tar.gz 
+# with tarfile.open(href, "r:gz") as tar:
+#     tar.extractall()  # 預設會解壓在目前資料夾

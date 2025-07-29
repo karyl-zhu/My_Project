@@ -16,7 +16,10 @@
 | 2024_vacation_data | 2024-07-25 | 指定下載特定年份且為週末的資料，重複執行程式會避免重新下載資料 |
 | zip_issue.py | 2024-07-25 | 解壓縮下載下來的檔案至指定資料夾 |
 | 2025_vacation_data | 2024-07-27 | 下載檔案時會同步解壓縮檔案，並另存至新建的資料夾；下載範圍：2025年上半年度 | 
-| data_cleaning.py | 2024-07-27 | 練習透過 Pandas 套件清洗資料；範例資料：A03檔案 | 
+| data_clean.py | 2024-07-27 | 練習透過 Pandas 套件清洗資料；範例資料：A03檔案 | 
+| insert_column.py | 2024-07-29 | 新增欄位與 Header 至 csv檔案內 |
+| import_to_MySQL.py | 2024-07-29 | 將整理好的資料匯入MySQL中 |
+
 
 ---
 
@@ -28,17 +31,4 @@
 - 🔄 資料分析模組尚未完成  
 
 ---
-
-## 使用說明
-
-1. 請安裝 Python 3.8+  
-2. 安裝套件：
-    ```bash
-    pip install requests beautifulsoup4
-    ```
-3. 執行程式：
-    ```bash
-    python main.py
-    ```
-4. 資料將存放於專案資料夾下 `Web_Crawler/2024/zip_file/`
 

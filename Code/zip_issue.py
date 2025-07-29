@@ -7,16 +7,16 @@ import tarfile
 import shutil
 
 headers = {'User-Agent': 'Mozilla/5.0'}
-base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
+base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M05A/'
 
 # 建立最終資料夾
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
-unzip_folder = os.path.join(parent_dir, 'Web_Crawler', '2024')
+unzip_folder = os.path.join(parent_dir, 'Web_Crawler', '2025')
 os.makedirs(unzip_folder, exist_ok=True)
 
 # 正則比對檔名格式，抓月份與日期
-pattern = re.compile(r'^M03A_2024(\d{2})(\d{2})\.tar\.gz$')
+pattern = re.compile(r'^M05A_2025(\d{2})(\d{2})\.tar\.gz$')
 
 # 下載並解析網頁
 res = requests.get(base_url, headers=headers)
@@ -41,7 +41,7 @@ for link in links:
             continue
 
         month, day = match.groups()
-        date_str = f'2024-{month}-{day}'
+        date_str = f'2025-{month}-{day}'
         date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
         # 只抓週末（六日）
@@ -51,7 +51,7 @@ for link in links:
         filename = href
         zip_path = os.path.join(unzip_folder, filename)
         folder_name = filename.replace('.tar.gz', '')
-        final_folder_name = folder_name[-8:]  # 20240106
+        final_folder_name = folder_name[-8:]  # 20250106
         final_extract_path = os.path.join(unzip_folder, final_folder_name)
 
         if os.path.exists(final_extract_path):
@@ -69,7 +69,7 @@ for link in links:
         with tarfile.open(zip_path, 'r:gz') as tar:
             tar.extractall(path=os.path.join(unzip_folder, folder_name))
 
-        inner_path = os.path.join(unzip_folder, folder_name, 'M03A', final_folder_name)
+        inner_path = os.path.join(unzip_folder, folder_name, 'M05A', final_folder_name)
         if os.path.exists(inner_path):
             shutil.move(inner_path, final_extract_path)
         else:

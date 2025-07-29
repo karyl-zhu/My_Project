@@ -6,7 +6,7 @@ import re
 import datetime
 
 headers = {'User-Agent': 'Mozilla/5.0'}
-base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
+base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M05A/'
 
 # 取得當前執行此 Python 檔案的資料夾
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +25,7 @@ links = soup.find_all('td', attrs={'class': 'indexcolname'})
 # (\d{2}) 第一段 → 月份
 # (\d{2}) 第二段 → 日期
 # 後續才可以勾出假日的時段
-data_2024 = re.compile(r'^M03A_2024(\d{2})(\d{2})\.tar\.gz$')
+data_2024 = re.compile(r'^M05A_2024(\d{2})(\d{2})\.tar\.gz$')
 
 count = 0
 for link in links:

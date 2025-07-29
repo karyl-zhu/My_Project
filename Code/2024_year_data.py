@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import re
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'}
-base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M03A/'
+base_url = 'https://tisvcloud.freeway.gov.tw/history/TDCS/M05A/'
 
 # os.getcwd() -> 取得當前工作目錄
 # os.path.join -> 合併路徑，使用這與法能讓不同系統的電腦不會因為路徑顯示方式不同而出錯
@@ -24,7 +24,7 @@ soup = BeautifulSoup(res.text, 'html.parser')
 links = soup.find_all('td', attrs={'class': 'indexcolname'})
 
 # 設定變數，此變數為 2024 年的檔案
-data_2024 = re.compile(r'^M03A_2024\d{4}\.tar\.gz$')
+data_2024 = re.compile(r'^M05A_2024\d{4}\.tar\.gz$')
 
 count = 0
 for link in links:

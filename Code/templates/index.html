@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>附近餐廳推薦</title>
+</head>
+<body>
+    <h1>附近餐廳推薦</h1>
+    <button onclick="getLocation()">取得我的位置並推薦</button>
+    <p id="status"></p>
+    <ul id="restaurant-list"></ul>
+
+    <script>
+        function getLocation() {
+            const status = document.getElementById("status");
+            status.innerText = "取得位置中...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(success, error);
+            } else {
+                status.innerText = "瀏覽器不支援位置服務";
+            }
+        }
+
+        function success(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            document.getElementById("status").innerText = `位置取得成功：(${lat}, ${lng})，查詢中...`;
+
+            fetch(`/restaurants?lat=${lat}&lng=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById("restaurant-list");
+                    list.innerHTML = "";
+                    data.results.forEach(place => {
+                        const li = document.createElement("li");
+                        li.innerText = `${place.name} - ${place.vicinity}`;
+                        list.appendChild(li);
+                    });
+                    if (data.results.length === 0) {
+                        list.innerHTML = "<li>附近沒有找到餐廳</li>";
+                    }
+                });
+        }
+
+        function error() {
+            document.getElementById("status").innerText = "取得位置失敗";
+        }
+    </script>
+</body>
+</html>

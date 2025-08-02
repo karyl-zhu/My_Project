@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-GOOGLE_MAPS_API_KEY = "AIzaSyB8bSdoYEBM_FRjhRsjnJAcVtCczexW2ik"
+GOOGLE_MAPS_API_KEY = "你的_API_KEY"
 
 @app.route("/")
 def index():
